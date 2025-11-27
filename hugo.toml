@@ -1,9 +1,9 @@
 baseURL = "https://ybht.vercel.app"
-title = "Petrel's Domain"
 theme = "hugo-coder"
-languageCode = "en"
-defaultContentLanguage = "en"
 enableEmoji = true
+
+# 1. 移除顶层 languageCode，改为设置默认内容语言为英文（匹配 UI）
+defaultContentLanguage = "en"
 
 [pagination]
 pagerSize = 20
@@ -16,6 +16,49 @@ noClasses = false
 [markup.goldmark.renderer]
 unsafe = true
 
+# --------------------------------------------------
+# 2. 关键修改：添加多语言配置，并保留你的 Petrel's Domain
+# --------------------------------------------------
+[languages]
+  [languages.en]
+    # 英文配置 (默认语言和 UI 语言)
+    title = "Petrel's Domain" # 保持你的个性化配置
+    weight = 10
+    languageName = "English"
+    languageCode = "en"
+    
+    # 英文菜单
+    [[languages.en.menu.main]]
+      name = "Posts"
+      weight = 2
+      url = "posts/"
+
+    [[languages.en.menu.main]]
+      name = "About"
+      weight = 1
+      url = "about/"
+    
+  [languages."zh-cn"]
+    # 中文配置 (用于中文文章内容)
+    title = "Petrel's Domain" # 保持你的个性化配置 (结构要求必须有)
+    weight = 20
+    languageName = "简体中文"
+    languageCode = "zh-cn"
+    
+    # 中文菜单
+    [[languages."zh-cn".menu.main]]
+      name = "文章"
+      weight = 2
+      url = "posts/"
+
+    [[languages."zh-cn".menu.main]]
+      name = "关于"
+      weight = 1
+      url = "about/"
+
+# --------------------------------------------------
+# 3. 基础参数
+# --------------------------------------------------
 [params]
 author = "Petrel"
 description = "我的个人博客"
@@ -33,17 +76,6 @@ category = "categories"
 series = "series"
 tag = "tags"
 author = "authors"
-
-# 菜单配置
-[[menu.main]]
-name = "文章"
-weight = 2
-url = "posts/"
-
-[[menu.main]]
-name = "关于"
-weight = 1
-url = "about/"
 
 # 社交链接
 [[params.social]]
