@@ -1,0 +1,54 @@
+baseURL = "https://ybht.vercel.app"
+title = "Petrel's Domain"
+theme = "hugo-coder"
+languageCode = "en"
+defaultContentLanguage = "en"
+enableEmoji = true
+
+[pagination]
+pagerSize = 20
+
+[markup.highlight]
+noClasses = false
+
+[markup.goldmark.renderer]
+unsafe = true
+
+[params]
+author = "Petrel"
+description = "我的个人博客"
+keywords = "博客,技术,生活"
+info = ["Ognuno si racconta la vita come gli fa più comodo."]
+dateFormat = "2006-01-02"
+since = 2025
+colorScheme = "auto"
+
+[taxonomies]
+category = "categories"
+tag = "tags"
+
+[[menu.main]]
+name = "About"
+weight = 1
+url = "about/"
+
+[[menu.main]]
+name = "Blog"
+weight = 2
+url = "posts/"
+
+[[menu.main]]
+name = "Projects"
+weight = 3
+url = "projects/"
+
+[[menu.main]]
+name = "Contact me"
+weight = 4
+url = "contact/"
+
+[[params.social]]
+name = "Github"
+icon = "fa-brands fa-github fa-2x"
+weight = 1
+url = "https://github.com/Petrel0900/"
