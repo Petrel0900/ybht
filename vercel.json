@@ -1,0 +1,8 @@
+{
+  "build": {
+    "env": {
+      "HUGO_VERSION": "0.139.3"
+    }
+  },
+  "buildCommand": "git submodule update --init --recursive && hugo --gc --minify"
+}
