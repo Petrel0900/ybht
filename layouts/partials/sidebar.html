@@ -1,0 +1,33 @@
+<aside class="sidebar">
+  <!-- Categories -->
+  {{ if .Site.Taxonomies.categories }}
+  <div class="sidebar-section">
+    <h3>📂 Categories</h3>
+    <ul class="taxonomy-list">
+      {{ range $name, $taxonomy := .Site.Taxonomies.categories }}
+      <li>
+        <a href="{{ "/categories/" | relLangURL }}{{ $name | urlize }}">
+          {{ $name }}
+        </a>
+      </li>
+      {{ end }}
+    </ul>
+  </div>
+  {{ end }}
+
+  <!-- Tags -->
+  {{ if .Site.Taxonomies.tags }}
+  <div class="sidebar-section">
+    <h3>🏷️ Tags</h3>
+    <ul class="taxonomy-list">
+      {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
+      <li>
+        <a href="{{ "/tags/" | relLangURL }}{{ $name | urlize }}">
+          {{ $name }}
+        </a>
+      </li>
+      {{ end }}
+    </ul>
+  </div>
+  {{ end }}
+</aside>
