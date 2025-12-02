@@ -22,6 +22,7 @@ info = ["Ognuno si racconta la vita come gli fa più comodo."]
 dateFormat = "2006-01-02"
 since = 2025
 colorScheme = "auto"
+avatarURL = "images/avatar.png"
 
 [taxonomies]
 category = "categories"
