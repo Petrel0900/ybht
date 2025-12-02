@@ -23,6 +23,7 @@ dateFormat = "2006-01-02"
 since = 2025
 colorScheme = "auto"
 avatarURL = "images/avatar.png"
+customCSS = ["css/custom.css"]
 
 [taxonomies]
 category = "categories"
