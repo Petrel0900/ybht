@@ -19,3 +19,82 @@ h1, h2, h3, h4, h5, h6 {
                "Source Han Sans CN", "Noto Sans CJK SC", sans-serif;
   line-height: 1.8;
 }
+
+/* 原有的字体样式保持不变... */
+
+/* === 侧边栏样式 === */
+.content-with-sidebar {
+  display: flex;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+.posts {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 2rem;
+  height: fit-content;
+  background: #f5f5dc;
+  border: 2px solid #333;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.sidebar-section {
+  margin-bottom: 2rem;
+}
+
+.sidebar-section:last-child {
+  margin-bottom: 0;
+}
+
+.sidebar-section h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #333;
+  padding-bottom: 0.5rem;
+}
+
+.taxonomy-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.taxonomy-list li {
+  margin-bottom: 0.5rem;
+}
+
+.taxonomy-list a {
+  color: #333;
+  text-decoration: none;
+  display: block;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.taxonomy-list a:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  text-decoration: underline;
+}
+
+/* 响应式：小屏幕隐藏侧边栏 */
+@media (max-width: 768px) {
+  .content-with-sidebar {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    position: static;
+  }
+}
