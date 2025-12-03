@@ -6,22 +6,18 @@ const path = require('path');
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const n2m = new NotionToMarkdown({ notionClient: notion });
 
-// 博客文章数据库
 const BLOG_DATABASE_ID = process.env.NOTION_DATABASE_ID;
-// 项目数据库
 const PROJECTS_DATABASE_ID = process.env.NOTION_PROJECTS_ID;
 
 const POSTS_DIR = './content/posts';
 const PROJECTS_DIR = './content/projects';
 
-// 确保目录存在
 [POSTS_DIR, PROJECTS_DIR].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
 });
 
-// 获取 Notion 数据库页面
 async function getNotionPages(databaseId) {
   try {
     const response = await notion.databases.query({
@@ -33,12 +29,11 @@ async function getNotionPages(databaseId) {
     });
     return response.results;
   } catch (error) {
-    console.error('获取页面失败:', error.message);
+    console.error('获取失败:', error.message);
     return [];
   }
 }
 
-// 转换博客文章
 async function convertPostToHugo(page) {
   const pageId = page.id;
   const title = page.properties.Name?.title[0]?.plain_text || 'Untitled';
@@ -47,7 +42,110 @@ async function convertPostToHugo(page) {
   const category = page.properties.Category?.select?.name || '';
   const slug = page.properties.Slug?.rich_text[0]?.plain_text || title.toLowerCase().replace(/\s+/g, '-');
   
-  console.log('正在处理文章:', title);
+  console.log('处理文章:', title);
   
   const mdblocks = await n2m.pageToMarkdown(pageId);
-  const mdString = n2m.toMarkdownString(mdblo)
+  const mdString = n2m.toMarkdownString(mdblocks);
+  
+  const frontMatter = `+++
+title = "${title}"
+date = "${date}"
+draft = false
+tags = [${tags.map(t => '"' + t + '"').join(', ')}]
+categories = ["${category}"]
+slug = "${slug}"
++++
+
+`;
+  
+  const fullContent = frontMatter + mdString.parent;
+  const filePath = path.join(POSTS_DIR, slug + '.md');
+  
+  fs.writeFileSync(filePath, fullContent, 'utf8');
+  console.log('✅ 文章:', slug + '.md');
+}
+
+async function convertProjectToHugo(page) {
+  const pageId = page.id;
+  const title = page.properties.Name?.title[0]?.plain_text || 'Untitled';
+  const date = page.properties.Date?.date?.start || new Date().toISOString().split('T')[0];
+  const tags = page.properties.Tags?.multi_select.map(tag => tag.name) || [];
+  const category = page.properties.Category?.select?.name || '';
+  const slug = page.properties.Slug?.rich_text[0]?.plain_text || title.toLowerCase().replace(/\s+/g, '-');
+  const image = page.properties.Image?.rich_text[0]?.plain_text || '';
+  const demo = page.properties.Demo?.url || '';
+  const github = page.properties.GitHub?.url || '';
+  
+  console.log('处理项目:', title);
+  
+  const mdblocks = await n2m.pageToMarkdown(pageId);
+  const mdString = n2m.toMarkdownString(mdblocks);
+  
+  let frontMatter = `+++
+title = "${title}"
+date = "${date}"
+draft = false
+tags = [${tags.map(t => '"' + t + '"').join(', ')}]
+categories = ["${category}"]
+slug = "${slug}"
+`;
+  
+  if (image) frontMatter += `image = "${image}"\n`;
+  if (demo) frontMatter += `demo = "${demo}"\n`;
+  if (github) frontMatter += `github = "${github}"\n`;
+  
+  frontMatter += `+++
+
+`;
+  
+  const fullContent = frontMatter + mdString.parent;
+  const filePath = path.join(PROJECTS_DIR, slug + '.md');
+  
+  fs.writeFileSync(filePath, fullContent, 'utf8');
+  console.log('✅ 项目:', slug + '.md');
+}
+
+async function main() {
+  console.log('🚀 开始同步...');
+  
+  if (!process.env.NOTION_TOKEN) {
+    console.error('❌ 未设置 NOTION_TOKEN');
+    process.exit(1);
+  }
+  
+  if (BLOG_DATABASE_ID) {
+    console.log('\n📝 同步文章...');
+    if (fs.existsSync(POSTS_DIR)) {
+      fs.readdirSync(POSTS_DIR).forEach(file => {
+        fs.unlinkSync(path.join(POSTS_DIR, file));
+      });
+    }
+    
+    const posts = await getNotionPages(BLOG_DATABASE_ID);
+    console.log(`找到 ${posts.length} 篇文章`);
+    
+    for (const page of posts) {
+      await convertPostToHugo(page);
+    }
+  }
+  
+  if (PROJECTS_DATABASE_ID) {
+    console.log('\n🎨 同步项目...');
+    if (fs.existsSync(PROJECTS_DIR)) {
+      fs.readdirSync(PROJECTS_DIR).forEach(file => {
+        fs.unlinkSync(path.join(PROJECTS_DIR, file));
+      });
+    }
+    
+    const projects = await getNotionPages(PROJECTS_DATABASE_ID);
+    console.log(`找到 ${projects.length} 个项目`);
+    
+    for (const page of projects) {
+      await convertProjectToHugo(page);
+    }
+  }
+  
+  console.log('\n✨ 完成！');
+}
+
+main().catch(console.error);
