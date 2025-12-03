@@ -1,8 +1,7 @@
 <aside class="sidebar">
-  <!-- Categories -->
   {{ if .Site.Taxonomies.categories }}
   <div class="sidebar-section">
-    <h3>📂 Categories</h3>
+    <h3>Categories</h3>
     <ul class="taxonomy-list">
       {{ range $name, $taxonomy := .Site.Taxonomies.categories }}
       <li>
@@ -15,10 +14,9 @@
   </div>
   {{ end }}
 
-  <!-- Tags -->
   {{ if .Site.Taxonomies.tags }}
   <div class="sidebar-section">
-    <h3>🏷️ Tags</h3>
+    <h3>Tags</h3>
     <ul class="taxonomy-list">
       {{ range $name, $taxonomy := .Site.Taxonomies.tags }}
       <li>
