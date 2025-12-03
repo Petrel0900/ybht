@@ -5,17 +5,27 @@ const path = require('path');
 
 const notion = new Client({ auth: process.env.NOTION_TOKEN });
 const n2m = new NotionToMarkdown({ notionClient: notion });
-const DATABASE_ID = process.env.NOTION_DATABASE_ID;
-const CONTENT_DIR = './content/posts';
 
-if (!fs.existsSync(CONTENT_DIR)) {
-  fs.mkdirSync(CONTENT_DIR, { recursive: true });
-}
+// 博客文章数据库
+const BLOG_DATABASE_ID = process.env.NOTION_DATABASE_ID;
+// 项目数据库
+const PROJECTS_DATABASE_ID = process.env.NOTION_PROJECTS_ID;
 
-async function getNotionPages() {
+const POSTS_DIR = './content/posts';
+const PROJECTS_DIR = './content/projects';
+
+// 确保目录存在
+[POSTS_DIR, PROJECTS_DIR].forEach(dir => {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+});
+
+// 获取 Notion 数据库页面
+async function getNotionPages(databaseId) {
   try {
     const response = await notion.databases.query({
-      database_id: DATABASE_ID,
+      database_id: databaseId,
       filter: {
         property: 'Status',
         status: { equals: 'Published' }
@@ -28,7 +38,8 @@ async function getNotionPages() {
   }
 }
 
-async function convertPageToHugo(page) {
+// 转换博客文章
+async function convertPostToHugo(page) {
   const pageId = page.id;
   const title = page.properties.Name?.title[0]?.plain_text || 'Untitled';
   const date = page.properties.Date?.date?.start || new Date().toISOString().split('T')[0];
@@ -36,51 +47,7 @@ async function convertPageToHugo(page) {
   const category = page.properties.Category?.select?.name || '';
   const slug = page.properties.Slug?.rich_text[0]?.plain_text || title.toLowerCase().replace(/\s+/g, '-');
   
-  console.log('正在处理:', title);
+  console.log('正在处理文章:', title);
   
   const mdblocks = await n2m.pageToMarkdown(pageId);
-  const mdString = n2m.toMarkdownString(mdblocks);
-  
-  const frontMatter = `+++
-title = "${title}"
-date = "${date}"
-draft = false
-tags = [${tags.map(t => '"' + t + '"').join(', ')}]
-categories = ["${category}"]
-slug = "${slug}"
-+++
-
-`;
-  
-  const fullContent = frontMatter + mdString.parent;
-  const fileName = slug + '.md';
-  const filePath = path.join(CONTENT_DIR, fileName);
-  
-  fs.writeFileSync(filePath, fullContent, 'utf8');
-  console.log('✅ 已生成:', fileName);
-}
-
-async function main() {
-  console.log('🚀 开始从 Notion 同步内容...');
-  
-  if (!process.env.NOTION_TOKEN || !process.env.NOTION_DATABASE_ID) {
-    console.error('❌ 错误: 请设置环境变量');
-    process.exit(1);
-  }
-  
-  if (fs.existsSync(CONTENT_DIR)) {
-    const files = fs.readdirSync(CONTENT_DIR);
-    files.forEach(file => fs.unlinkSync(path.join(CONTENT_DIR, file)));
-  }
-  
-  const pages = await getNotionPages();
-  console.log('📄 找到', pages.length, '篇已发布文章');
-  
-  for (const page of pages) {
-    await convertPageToHugo(page);
-  }
-  
-  console.log('✨ 同步完成！');
-}
-
-main().catch(console.error);
+  const mdString = n2m.toMarkdownString(mdblo
