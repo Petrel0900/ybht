@@ -50,4 +50,4 @@ async function convertPostToHugo(page) {
   console.log('正在处理文章:', title);
   
   const mdblocks = await n2m.pageToMarkdown(pageId);
-  const mdString = n2m.toMarkdownString(mdblo
+  const mdString = n2m.toMarkdownString(mdblo)
