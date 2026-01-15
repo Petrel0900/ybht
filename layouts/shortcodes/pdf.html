@@ -1,4 +1,3 @@
-{{/* layouts/shortcodes/pdf.html */}}
 {{- $src := .Get "src" -}}
 {{- $title := .Get "title" | default "PDF Document" -}}
 {{- $height := .Get "height" | default "800px" -}}
@@ -6,12 +5,13 @@
 <div class="pdf-embed-container">
   <div class="pdf-header">
     <span class="pdf-title">📄 {{ $title }}</span>
-    <a href="{{ $src }}" class="pdf-download" download>下载 PDF</a>
-  </div>
+    </div>
   
-  <div class="pdf-viewer" style="height: {{ $height }};">
+  <div class="pdf-viewer-wrapper" style="position: relative; height: {{ $height }};">
+    <div class="pdf-shield"></div>
+    
     <iframe 
-      src="{{ $src }}#toolbar=1&navpanes=0&scrollbar=1&view=FitH" 
+      src="{{ $src }}#toolbar=0&navpanes=0&scrollbar=1&view=FitH" 
       width="100%" 
       height="100%"
       style="border: none;"
@@ -21,10 +21,7 @@
     
     <div class="pdf-fallback">
       <p>您的浏览器不支持在线预览 PDF。</p>
-      <a href="{{ $src }}" class="pdf-download-button" download>
-        点击下载 PDF 文件
-      </a>
-    </div>
+      </div>
   </div>
 </div>
 
@@ -35,12 +32,22 @@
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
+  user-select: none; /* 禁止选中文本 */
+}
+
+/* 透明遮罩层：放在 iframe 顶部，遮住最上面那一排按钮 */
+.pdf-shield {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px; /* 屏蔽掉 PDF 浏览器最顶部的工具栏点击 */
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.01); /* 极度透明 */
 }
 
 .pdf-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   padding: 1rem 1.5rem;
   background: #f6f8fa;
   border-bottom: 1px solid #e1e4e8;
@@ -51,83 +58,30 @@
   color: #24292e;
 }
 
-.pdf-download {
-  padding: 0.5rem 1rem;
-  background: #0366d6;
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  transition: background 0.2s;
-}
-
-.pdf-download:hover {
-  background: #0256c7;
-}
-
-.pdf-viewer {
+.pdf-viewer-wrapper {
   position: relative;
   width: 100%;
   background: #525659;
+  /* 禁止右键 */
+  -webkit-touch-callout: none;
 }
 
-.pdf-viewer iframe {
-  display: block;
-}
-
-.pdf-fallback {
-  display: none;
-  text-align: center;
-  padding: 3rem;
-}
-
-.pdf-download-button {
-  display: inline-block;
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background: #0366d6;
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
-  font-weight: 500;
-}
-
-.pdf-download-button:hover {
-  background: #0256c7;
-}
-
-/* 深色模式支持 */
+/* 深色模式兼容 */
 @media (prefers-color-scheme: dark) {
-  .pdf-embed-container {
-    border-color: #30363d;
-    background: #0d1117;
-  }
-  
-  .pdf-header {
-    background: #161b22;
-    border-bottom-color: #30363d;
-  }
-  
-  .pdf-title {
-    color: #c9d1d9;
-  }
-}
-
-/* 移动端优化 */
-@media (max-width: 768px) {
-  .pdf-header {
-    flex-direction: column;
-    gap: 0.75rem;
-    align-items: flex-start;
-  }
-  
-  .pdf-download {
-    width: 100%;
-    text-align: center;
-  }
-  
-  .pdf-viewer {
-    height: 500px !important;
-  }
+  .pdf-embed-container { border-color: #30363d; background: #0d1117; }
+  .pdf-header { background: #161b22; border-bottom-color: #30363d; }
+  .pdf-title { color: #c9d1d9; }
 }
 </style>
+
+<script>
+// 简单的右键屏蔽脚本
+document.addEventListener('DOMContentLoaded', function() {
+  const container = document.querySelector('.pdf-viewer-wrapper');
+  if (container) {
+    container.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+    }, false);
+  }
+});
+</script>
