@@ -18,6 +18,20 @@ const PROJECTS_DIR = './content/projects';
   }
 });
 
+// 自定义转换函数，将 PDF 链接转换为 shortcode
+function convertPdfLinksToShortcode(markdown) {
+  // 匹配 Notion 的 PDF 链接格式
+  // 格式1: [filename.pdf](https://...)
+  // 格式2: [任意文本](https://...pdf)
+  const pdfLinkRegex = /\[([^\]]+)\]\(([^)]+\.pdf[^)]*)\)/gi;
+  
+  return markdown.replace(pdfLinkRegex, (match, filename, url) => {
+    // 清理文件名，如果不是 .pdf 结尾，添加 "PDF"
+    const displayName = filename.endsWith('.pdf') ? filename : filename + ' PDF';
+    return `\n{{< pdf src="${url}" title="${displayName}" >}}\n`;
+  });
+}
+
 async function getNotionPages(databaseId) {
   try {
     const response = await notion.databases.query({
@@ -47,6 +61,9 @@ async function convertPostToHugo(page) {
   const mdblocks = await n2m.pageToMarkdown(pageId);
   const mdString = n2m.toMarkdownString(mdblocks);
   
+  // 转换 PDF 链接为 shortcode
+  const processedContent = convertPdfLinksToShortcode(mdString.parent);
+  
   const frontMatter = `+++
 title = "${title}"
 date = "${date}"
@@ -58,7 +75,7 @@ slug = "${slug}"
 
 `;
   
-  const fullContent = frontMatter + mdString.parent;
+  const fullContent = frontMatter + processedContent;
   const filePath = path.join(POSTS_DIR, slug + '.md');
   
   fs.writeFileSync(filePath, fullContent, 'utf8');
@@ -81,6 +98,9 @@ async function convertProjectToHugo(page) {
   const mdblocks = await n2m.pageToMarkdown(pageId);
   const mdString = n2m.toMarkdownString(mdblocks);
   
+  // 转换 PDF 链接为 shortcode
+  const processedContent = convertPdfLinksToShortcode(mdString.parent);
+  
   let frontMatter = `+++
 title = "${title}"
 date = "${date}"
@@ -98,7 +118,7 @@ slug = "${slug}"
 
 `;
   
-  const fullContent = frontMatter + mdString.parent;
+  const fullContent = frontMatter + processedContent;
   const filePath = path.join(PROJECTS_DIR, slug + '.md');
   
   fs.writeFileSync(filePath, fullContent, 'utf8');
