@@ -25,7 +25,9 @@ jobs:
           node-version: '18'
       
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install axios  # 强制安装 axios
       
       - name: Sync from Notion
         env:
