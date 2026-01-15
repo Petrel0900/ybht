@@ -1,0 +1,133 @@
+{{/* layouts/shortcodes/pdf.html */}}
+{{- $src := .Get "src" -}}
+{{- $title := .Get "title" | default "PDF Document" -}}
+{{- $height := .Get "height" | default "800px" -}}
+
+<div class="pdf-embed-container">
+  <div class="pdf-header">
+    <span class="pdf-title">📄 {{ $title }}</span>
+    <a href="{{ $src }}" class="pdf-download" download>下载 PDF</a>
+  </div>
+  
+  <div class="pdf-viewer" style="height: {{ $height }};">
+    <iframe 
+      src="{{ $src }}#toolbar=1&navpanes=0&scrollbar=1&view=FitH" 
+      width="100%" 
+      height="100%"
+      style="border: none;"
+      type="application/pdf"
+      title="{{ $title }}">
+    </iframe>
+    
+    <div class="pdf-fallback">
+      <p>您的浏览器不支持在线预览 PDF。</p>
+      <a href="{{ $src }}" class="pdf-download-button" download>
+        点击下载 PDF 文件
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+.pdf-embed-container {
+  margin: 2rem 0;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.pdf-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #f6f8fa;
+  border-bottom: 1px solid #e1e4e8;
+}
+
+.pdf-title {
+  font-weight: 600;
+  color: #24292e;
+}
+
+.pdf-download {
+  padding: 0.5rem 1rem;
+  background: #0366d6;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.pdf-download:hover {
+  background: #0256c7;
+}
+
+.pdf-viewer {
+  position: relative;
+  width: 100%;
+  background: #525659;
+}
+
+.pdf-viewer iframe {
+  display: block;
+}
+
+.pdf-fallback {
+  display: none;
+  text-align: center;
+  padding: 3rem;
+}
+
+.pdf-download-button {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #0366d6;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.pdf-download-button:hover {
+  background: #0256c7;
+}
+
+/* 深色模式支持 */
+@media (prefers-color-scheme: dark) {
+  .pdf-embed-container {
+    border-color: #30363d;
+    background: #0d1117;
+  }
+  
+  .pdf-header {
+    background: #161b22;
+    border-bottom-color: #30363d;
+  }
+  
+  .pdf-title {
+    color: #c9d1d9;
+  }
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .pdf-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  
+  .pdf-download {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .pdf-viewer {
+    height: 500px !important;
+  }
+}
+</style>
