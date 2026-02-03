@@ -42,8 +42,10 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add content/
-          git diff --quiet && git diff --staged --quiet || git commit -m "Auto sync from Notion"
+          # 修改这里：使用 git add . 来包含 package.json 的变化，或者只 add 变化了的内容
+          git add . 
+          # 检查是否有已暂存的变化，如果有则 commit
+          git diff --staged --quiet || git commit -m "Auto sync from Notion"
       
       - name: Push changes
         uses: ad-m/github-push-action@master
