@@ -1,27 +1,34 @@
-{{- $src := .Get "src" -}}
-{{- $title := .Get "title" | default "PDF Document" -}}
-{{- $height := .Get "height" | default "800px" -}}
+{{/* layouts/shortcodes/pdf.html - 中度保护版本 */}}
+{{- $src := .Get “src” -}}
+{{- $title := .Get “title” | default “PDF Document” -}}
+{{- $height := .Get “height” | default “800px” -}}
 
 <div class="pdf-embed-container">
   <div class="pdf-header">
     <span class="pdf-title">📄 {{ $title }}</span>
-    </div>
-  
-  <div class="pdf-viewer-wrapper" style="position: relative; height: {{ $height }};">
-    <div class="pdf-shield"></div>
-    
+  </div>
+
+  <div class="pdf-viewer" style="height: {{ $height }};" oncontextmenu="return false;">
     <iframe 
       src="{{ $src }}#toolbar=0&navpanes=0&scrollbar=1&view=FitH" 
       width="100%" 
       height="100%"
-      style="border: none;"
+      style="border: none; pointer-events: auto;"
       type="application/pdf"
-      title="{{ $title }}">
+      title="{{ $title }}"
+      oncontextmenu="return false;">
     </iframe>
-    
-    <div class="pdf-fallback">
-      <p>您的浏览器不支持在线预览 PDF。</p>
-      </div>
+
+```
+<div class="pdf-fallback">
+  <p>您的浏览器不支持在线预览 PDF。</p>
+  <p>请使用 Chrome、Edge 或 Firefox 浏览器查看。</p>
+</div>
+
+<!-- 透明遮罩层，防止右键 -->
+<div class="pdf-overlay"></div>
+```
+
   </div>
 </div>
 
@@ -32,22 +39,16 @@
   border-radius: 8px;
   overflow: hidden;
   background: #fff;
-  user-select: none; /* 禁止选中文本 */
-}
-
-/* 透明遮罩层：放在 iframe 顶部，遮住最上面那一排按钮 */
-.pdf-shield {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 60px; /* 屏蔽掉 PDF 浏览器最顶部的工具栏点击 */
-  z-index: 10;
-  background: rgba(255, 255, 255, 0.01); /* 极度透明 */
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 .pdf-header {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 1rem 1.5rem;
   background: #f6f8fa;
   border-bottom: 1px solid #e1e4e8;
@@ -56,32 +57,104 @@
 .pdf-title {
   font-weight: 600;
   color: #24292e;
+  user-select: none;
 }
 
-.pdf-viewer-wrapper {
+.pdf-viewer {
   position: relative;
   width: 100%;
   background: #525659;
-  /* 禁止右键 */
-  -webkit-touch-callout: none;
 }
 
-/* 深色模式兼容 */
+.pdf-viewer iframe {
+  display: block;
+  user-select: none;
+}
+
+.pdf-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.pdf-fallback {
+  display: none;
+  text-align: center;
+  padding: 3rem;
+  color: #fff;
+}
+
+/* 深色模式支持 */
 @media (prefers-color-scheme: dark) {
-  .pdf-embed-container { border-color: #30363d; background: #0d1117; }
-  .pdf-header { background: #161b22; border-bottom-color: #30363d; }
-  .pdf-title { color: #c9d1d9; }
+  .pdf-embed-container {
+    border-color: #30363d;
+    background: #0d1117;
+  }
+  
+  .pdf-header {
+    background: #161b22;
+    border-bottom-color: #30363d;
+  }
+  
+  .pdf-title {
+    color: #c9d1d9;
+  }
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+  .pdf-header {
+    padding: 0.75rem 1rem;
+  }
+  
+  .pdf-viewer {
+    height: 500px !important;
+  }
 }
 </style>
 
 <script>
-// 简单的右键屏蔽脚本
-document.addEventListener('DOMContentLoaded', function() {
-  const container = document.querySelector('.pdf-viewer-wrapper');
-  if (container) {
-    container.addEventListener('contextmenu', function(e) {
+(function() {
+  // 禁用右键菜单
+  document.addEventListener('contextmenu', function(e) {
+    if (e.target.closest('.pdf-embed-container')) {
       e.preventDefault();
-    }, false);
-  }
-});
+      return false;
+    }
+  });
+  
+  // 禁用常见的键盘快捷键（Ctrl+S, Ctrl+P 等）
+  document.addEventListener('keydown', function(e) {
+    if (e.target.closest('.pdf-embed-container') || 
+        document.activeElement.closest('.pdf-embed-container')) {
+      // Ctrl+S (保存)
+      if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+P (打印)
+      if (e.ctrlKey && e.key === 'p') {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+C (复制，针对整个容器)
+      if (e.ctrlKey && e.key === 'c') {
+        e.preventDefault();
+        return false;
+      }
+    }
+  });
+  
+  // 禁用拖拽保存
+  document.addEventListener('dragstart', function(e) {
+    if (e.target.closest('.pdf-embed-container')) {
+      e.preventDefault();
+      return false;
+    }
+  });
+})();
 </script>
