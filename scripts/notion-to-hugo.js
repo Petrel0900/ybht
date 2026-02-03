@@ -157,3 +157,5 @@ async function main() {
   
   console.log('Complete!');
 }
+
+main().catch(console.error);
